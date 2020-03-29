@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>A simple deployment with the Now API!</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    </head>
+    <body>
+        <script>
+            var script = document.createElement(`script`);
+            document.body.append(script);
+
+            script.setAttribute(`src`, `/demo/${new URLSearchParams(window.location.search).get(`component`) || `index`}.js`);
+        </script>
+    </body>
+</html>
