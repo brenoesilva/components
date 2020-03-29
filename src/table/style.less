@@ -1,0 +1,43 @@
+.table {
+  @apply w-full;
+
+  > .thead {
+    > .tr {
+      @apply bg-gray-200 hidden;
+
+      @media (min-width: 640px) {
+        @apply table-row;
+      }
+
+      > .th {
+        @apply border border-gray-400;
+      }
+    }
+  }
+
+  > .tbody {
+    > .tr {
+      @apply block border border-gray-400 text-xs;
+
+      @media (min-width: 640px) {
+        @apply border-0 table-row;
+      }
+
+      > .td {
+        @apply block border border-gray-200 px-1 text-right;
+
+        @media (min-width: 640px) {
+          @apply table-cell text-left;
+        }
+
+        @media (max-width: 639px) {
+          content: attr(data-label);
+
+          &:empty {
+            @apply hidden;
+          }
+        }
+      }
+    }
+  }
+}
