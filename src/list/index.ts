@@ -20,28 +20,50 @@ export default class ListComponent extends Component {
 
     protected init(self, attrs) {
         var selected = attrs.selected || m.stream(attrs.selectable === `multiple` ? [] : ``);
+        var filtered = attrs.filtered || m.stream(``);
 
         self.add(function () {
-            var components = m.stream([]);
+            var filter = m.stream(``);
+            var children = {};
 
-            async.mapSeries(attrs.data(), function (item, callback) {
-                var component = function () {
-                    return function () {
-                        return typeof attrs.render === `function` ? attrs.render(item) : item;
-                    };
-                };
-
-                new Component(`li`).add(component).decorate([
-                    attrs.selectable ? `${__webpack_public_path__}selectable.js` : ``,
+            if (attrs.filterable) {
+                new Component(`li`).decorate([
+                    `${__webpack_public_path__}filterable.js`,
                 ], {
-                    selectable: attrs.selectable,
-                    components: components,
-                    selected: selected,
-                    value: item,
-                }, callback);
-            }).then(attrs.data);
+                    filtered: filtered,
+                    data: attrs.data,
+                }).then(filter);
+            }
 
-            return attrs.data;
+            (function (components) {
+                async.eachSeries(attrs.data(), function (item, callback) {
+                    var component = function () {
+                        return function () {
+                            return typeof attrs.render === `function` ? attrs.render(item) : item;
+                        };
+                    };
+
+                    new Component(`li`).add(component).decorate([
+                        attrs.selectable ? `${__webpack_public_path__}selectable.js` : ``,
+                    ], {
+                        selectable: attrs.selectable,
+                        components: components,
+                        selected: selected,
+                        value: item,
+                    }).then(function (component) {
+                        children[JSON.stringify(item)] = component;
+                        callback();
+                    });
+                });
+            })(m.stream([]));
+
+            return function () {
+                return [
+                    filter(),
+                ].concat(_.map(attrs.data(), function (item) {
+                    return children[JSON.stringify(item)];
+                }).filter(Boolean));
+            };
         });
     }
 };
