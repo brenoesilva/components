@@ -22,25 +22,41 @@ export default class TableComponent extends Component {
     protected init(self, attrs) {
         self.add([
             new Component(`thead.${TableStyle[`thead`]}`).add(
-                new Component(`tr.${TableStyle[`tr`]}`).add(
-                    _.map(attrs.cols || [], function (col) {
-                        return new Component(`th.${TableStyle[`th`]}`).add(
-                            _.startCase(_.lowerCase(col.name)),
-                        );
-                    }),
-                ),
+                new Component(`tr.${TableStyle[`tr`]}`).add(function () {
+                    var headers = m.stream([]);
+                    var sort = m.stream({});
+
+                    async.mapSeries(attrs.cols || [], function (col, callback) {
+                        new Component(`span`).add(_.startCase(_.lowerCase(col.name))).decorate([
+                            attrs.sortable ? `${__webpack_public_path__}sortable.js` : ``,
+                        ], {
+                            data: attrs.data,
+                            name: col.name,
+                            sort: sort,
+                        }, function (error, component) {
+                            callback(error, new Component(`th.${TableStyle[`th`]}`).add(component));
+                        });
+                    }).then(headers).then(m.redraw);
+
+                    return headers;
+                }),
             ),
             new Component(`tbody.${TableStyle[`tbody`]}`).add(function () {
                 var selected = attrs.selected || m.stream(attrs.selectable === `multiple` ? [] : ``);
-                var children = m.stream([]);
+                var children = {};
 
                 (function (components) {
-                    async.mapSeries(attrs.data() || [], function (row, callback) {
+                    async.eachSeries(attrs.data() || [], function (row, callback) {
                         new Component(`tr.${TableStyle[`tr`]}`).add(
                             _.map(attrs.cols || [], function (col) {
-                                return new Component(`td.${TableStyle[`td`]}`).add(
-                                    typeof col.render === `function` ? col.render(row) : row[col.name],
-                                ).set(`data-label`, _.startCase(_.lowerCase(col.name)));
+                                var component = function () {
+                                    return function () {
+                                        return typeof col.render === `function` ? col.render(row) : row[col.name];
+                                    };
+                                };
+
+                                return new Component(`td.${TableStyle[`td`]}`).add(component)
+                                    .set(`data-label`, _.startCase(_.lowerCase(col.name)));
                             }),
                         ).decorate([
                             attrs.strippable ? `${__webpack_public_path__}strippable.js` : ``,
@@ -51,11 +67,18 @@ export default class TableComponent extends Component {
                             value: JSON.stringify(row),
                             components: components,
                             selected: selected,
-                        }, callback);
-                    }).then(children);
+                        }).then(function (component) {
+                            children[JSON.stringify(row)] = component;
+                            callback();
+                        });
+                    }).then(m.redraw);
                 })(m.stream([]));
 
-                return children;
+                return function () {
+                    return _.map(attrs.data(), function (item) {
+                        return children[JSON.stringify(item)];
+                    });
+                };
             }),
         ]);
     }
