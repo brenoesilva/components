@@ -14,6 +14,41 @@ System.import(`${__webpack_public_path__}index.js`).then(function ($) {
                     }));
                 });
 
+                q.push(`${__webpack_public_path__}table.js`, function (error, Component) {
+                    vnode.state.components.push(new Component({
+                        hoverable: true,
+                        data: m.stream([{
+                            first: `Mark`,
+                            last: `Otto`,
+                            handle: `@mdo`,
+                            link: `/mdo`
+                        }, {
+                            first: `Jacob`,
+                            last: `Thornton`,
+                            handle: `@fat`,
+                            link: `/fat`
+                        }, {
+                            first: `Larry`,
+                            last: `the Bird`,
+                            handle: `@twitter`,
+                            link: `/twitter`
+                        }]),
+                        cols: [{
+                            name: `first`
+                        }, {
+                            name: `last`
+                        }, {
+                            name: `handle`,
+                            render: function (row) {
+                                return m(`a`, {
+                                    href: `https://twitter.com${row.link}`,
+                                    target: `_blank`
+                                }, row.handle);
+                            }
+                        }]
+                    }));
+                });
+
                 q.push(`${__webpack_public_path__}list.js`, function (error, Component) {
                     vnode.state.components.push(new Component({
                         hoverable: true,
