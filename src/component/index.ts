@@ -4,6 +4,7 @@ declare const m;
 
 export default class Component {
     private static decorators = {};
+    private static strategies = {};
 
     private attrs = {};
     private children;
@@ -14,6 +15,14 @@ export default class Component {
 
     public static getDependencies() {
         return [];
+    }
+
+    public static strategize(strategy, attrs = {}) {
+        return new Promise(function (resolve) {
+            q.push(strategy, function (error, Strategy) {
+                resolve(new Strategy(attrs));
+            });
+        });
     }
 
     protected init(self, attrs) {
