@@ -8,6 +8,24 @@ System.import(`${__webpack_public_path__}index.js`).then(function ($) {
     $.ready(function () {
         return {
             oninit: function (vnode) {
+                q.push(`${__webpack_public_path__}calendar.js`, function (error, Component) {
+                    var d = new Date();
+
+                    vnode.state.components.push(new Component({
+                        selected: m.stream([`${d.getFullYear()}-${_.padStart(d.getMonth() + 1, 2, `0`)}-${_.padStart(d.getDate() + 1, 2, `0`)}`]),
+                        selectable: `multiple`,
+                    }));
+                });
+
+                q.push(`${__webpack_public_path__}calendar.js`, function (error, Component) {
+                    var d = new Date();
+
+                    vnode.state.components.push(new Component({
+                        selected: m.stream(`${d.getFullYear()}-${_.padStart(d.getMonth() + 1, 2, `0`)}-${_.padStart(d.getDate() + 1, 2, `0`)}`),
+                        selectable: true,
+                    }));
+                });
+
                 q.push(`${__webpack_public_path__}list.js`, function (error, Component) {
                     vnode.state.components.push(new Component({
                         selectable: `multiple`,

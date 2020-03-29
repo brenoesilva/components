@@ -5,6 +5,7 @@ declare const CalendarStyle;
 declare const _;
 
 declare const moment;
+declare const async;
 declare const fa;
 declare const m;
 
@@ -24,6 +25,7 @@ export default class CalendarComponent extends Component {
     protected init(self, attrs) {
         fa.load(`S-CaretRight`, `S-CaretLeft`);
         var date = attrs.date || moment();
+        var dates = m.stream([]);
 
         self.add([
             new Component(`thead.${CalendarStyle[`thead`]}`).add([
@@ -31,6 +33,7 @@ export default class CalendarComponent extends Component {
                     new Component(`th.${CalendarStyle[`th`]}`).add(
                         new Component(`button.${CalendarStyle[`button`]}`).set(`onclick`, function () {
                             date.subtract(1, `months`);
+                            dates([]);
                         }).add(new Component(`svg.${CalendarStyle[`svg`]}`).add(
                             new Component(`use`).set('xlink:href', `#fas-caret-left`),
                         )),
@@ -43,6 +46,7 @@ export default class CalendarComponent extends Component {
                     new Component(`th.${CalendarStyle[`th`]}`).add(
                         new Component(`button.${CalendarStyle[`button`]}`).set(`onclick`, function () {
                             date.add(1, `months`);
+                            dates([]);
                         }).add(new Component(`svg.${CalendarStyle[`svg`]}`).add(
                             new Component(`use`).set('xlink:href', `#fas-caret-right`),
                         )),
@@ -53,9 +57,12 @@ export default class CalendarComponent extends Component {
                 })),
             ]),
             new Component(`tbody.${CalendarStyle[`tbody`]}`).add(function () {
-                return function () {
-                    return _.map(_.chunk(self.getDates(date), 7), function (row) {
-                        return new Component(`tr.${CalendarStyle[`tr`]}`).add(_.map(row, function (col) {
+                var selected = attrs.selected || m.stream(attrs.selectable === `multiple` ? [] : ``);
+                var components = m.stream([]);
+
+                var compute = function () {
+                    async.mapSeries(_.chunk(self.getDates(date), 7), function (row, callback) {
+                        async.mapSeries(row, function (col, callback) {
                             var selector = `span.${CalendarStyle[`span`]}`;
 
                             if (_.indexOf([6, 7], col.isoWeekday()) !== -1) {
@@ -66,11 +73,29 @@ export default class CalendarComponent extends Component {
                                 selector += `.${CalendarStyle[`out-of-month`]}`;
                             }
 
-                            return new Component(`td.${CalendarStyle[`td`]}`).add(
-                                new Component(selector).add(col.format(`DD`)),
-                            );
-                        }));
-                    });
+                            new Component(selector).add(col.format(`DD`)).decorate([
+                                attrs.selectable ? `${__webpack_public_path__}selectable.js` : ``,
+                                attrs.hoverable ? `${__webpack_public_path__}hoverable.js` : ``,
+                            ], {
+                                value: col.format(`YYYY-MM-DD`),
+                                selectable: attrs.selectable,
+                                components: components,
+                                selected: selected,
+                            }, function (error, component) {
+                                callback(error, new Component(`td.${CalendarStyle[`td`]}`).add(component));
+                            });
+                        }, function (error, components) {
+                            callback(error, new Component(`tr.${CalendarStyle[`tr`]}`).add(components));
+                        });
+                    }).then(dates).then(m.redraw);
+                };
+
+                return function () {
+                    if (dates().filter(Boolean).length === 0) {
+                        compute();
+                    }
+
+                    return dates();
                 };
             }),
         ]);

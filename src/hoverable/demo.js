@@ -8,6 +8,12 @@ System.import(`${__webpack_public_path__}index.js`).then(function ($) {
     $.ready(function () {
         return {
             oninit: function (vnode) {
+                q.push(`${__webpack_public_path__}calendar.js`, function (error, Component) {
+                    vnode.state.components.push(new Component({
+                        hoverable: true
+                    }));
+                });
+
                 q.push(`${__webpack_public_path__}list.js`, function (error, Component) {
                     vnode.state.components.push(new Component({
                         hoverable: true,
