@@ -13,6 +13,12 @@ module.exports = require(`glob`).sync(`${__dirname}/src/**/webpack.config.js`).m
                 parser: {
                     system: false
                 }
+            }, {
+                exclude: /node_modules/,
+                test: /\.ts$/,
+                use: {
+                    loader: `ts-loader`
+                }
             }]
         },
         optimization: {
