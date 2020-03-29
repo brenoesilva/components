@@ -34,6 +34,31 @@ module.exports = require(`glob`).sync(`${__dirname}/src/**/webpack.config.js`).m
                         }
                     }
                 ]
+            }, {
+                test: /\.less$/,
+                use: [
+                    MiniCssExtractPlugin.loader, {
+                        loader: `css-loader`,
+                        options: {
+                            importLoaders: 1,
+                            modules: {
+                                localIdentName: `[hash:base64:5]`
+                            }
+                        }
+                    }, {
+                        loader: `postcss-loader`,
+                        options: {
+                            plugins: [
+                                require(`tailwindcss`),
+                                require(`postcss-nested`),
+                                require(`autoprefixer`),
+                                require(`cssnano`)({
+                                    preset: `default`
+                                })
+                            ]
+                        }
+                    }
+                ]
             }]
         },
         optimization: {

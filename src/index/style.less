@@ -1,0 +1,22 @@
+@tailwind base;
+
+.loader {
+  @apply absolute flex bg-white h-screen inset-0 items-center justify-center w-screen;
+  z-index: 9999;
+
+  &:before {
+    @apply border-8 border-solid border-gray-200 h-24 rounded-full w-24;
+    animation: spin 2s linear infinite;
+    border-top-color: #4EC1E0;
+    content: ' ';
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

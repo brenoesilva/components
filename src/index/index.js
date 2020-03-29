@@ -5,11 +5,16 @@ window.async = async;
 window.fa = null;
 window.m = m;
 
+m.stream = require(`mithril/stream`);
+var loader = m.stream(true);
+
 window.q = (function queue() {
     return async.queue(function (task, callback) {
         if (System.has(task)) {
             callback(null, System.get(task).default);
         } else {
+            loader(true);
+
             System.import(task).then(function (module) {
                 var q = queue();
                 m.redraw();
@@ -29,6 +34,7 @@ window.q = (function queue() {
                 }, function (error) {
                     callback(error, module.default);
                     System.set(task, module);
+                    loader(false);
                 });
             });
         }
@@ -44,7 +50,12 @@ export function ready(component) {
             });
         },
         view: function (vnode) {
-            return m(vnode.state.component || ``);
+            return [
+                m(`.${styles[`loader`]}`, {
+                    style: loader() ? `` : `display: none`
+                }),
+                m(vnode.state.component || ``)
+            ];
         }
     });
 };

@@ -6,7 +6,8 @@
     "@fortawesome/free-brands-svg-icons": "*",
     "@fortawesome/free-regular-svg-icons": "*",
     "@fortawesome/free-solid-svg-icons": "*",
-    "mithril": "*"
+    "mithril": "*",
+    "tailwindcss": "*"
   },
   "devDependencies": {
     "autoprefixer": "*",
@@ -17,6 +18,7 @@
     "lodash": "*",
     "mini-css-extract-plugin": "*",
     "postcss-loader": "*",
+    "postcss-nested": "*",
     "systemjs": "*",
     "terser-webpack-plugin": "*",
     "ts-loader": "*",
