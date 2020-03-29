@@ -1,0 +1,37 @@
+.table {
+  @apply text-center w-full;
+
+  > .thead {
+    @apply m-1;
+
+    > .tr {
+      > .th {
+        > .button {
+          @apply align-bottom;
+
+          > .svg {
+            @apply h-4 inline-block w-2;
+          }
+        }
+      }
+    }
+  }
+
+  > .tbody {
+    > .tr {
+      > .td {
+        > .span {
+          @apply p-1 rounded-full;
+        }
+      }
+    }
+  }
+}
+
+.out-of-month {
+  @apply opacity-25;
+}
+
+.week-end {
+  @apply text-red-600;
+}
