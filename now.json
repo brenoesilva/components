@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "dest": "public/(.*)",
+      "src": "/(.*)",
+      "headers": {
+        "cache-control": "s-maxage=31536000"
+      }
+    }
+  ]
+}

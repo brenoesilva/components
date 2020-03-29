@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "dependencies": {
+    "async": "*",
+    "mithril": "*"
+  },
+  "devDependencies": {
+    "glob": "*",
+    "lodash": "*",
+    "systemjs": "*",
+    "terser-webpack-plugin": "*",
+    "webpack": "*",
+    "webpack-cli": "*"
+  },
+  "scripts": {
+    "build": "webpack -p"
+  }
+}
