@@ -5,6 +5,7 @@ declare const PopperStyle;
 
 declare const Popper;
 declare const fa;
+declare const m;
 
 export default class PopperComponent extends Component {
     public static getDependencies() {
@@ -25,7 +26,7 @@ export default class PopperComponent extends Component {
         self.add([
             new Component(`summary.${PopperStyle[`summary`]}`).set(`onclick`, function () {
                 popper.update();
-            }).add(attrs.label),
+            }).add(typeof attrs.label === `function` ? attrs.label(attrs) : attrs.label),
             new Component(`.${PopperStyle[`div`]}`).set(`onupdate`, function (vnode) {
                 popper = Popper.createPopper(vnode.dom.parentNode, vnode.dom, {
                     placement: attrs.placement,
@@ -38,7 +39,7 @@ export default class PopperComponent extends Component {
                         },
                     ],
                 });
-            }).add(attrs.content),
+            }).add(typeof attrs.content === `function` ? attrs.content(attrs) : attrs.content),
         ]);
     }
 };
