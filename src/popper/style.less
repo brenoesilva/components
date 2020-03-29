@@ -1,0 +1,38 @@
+.details {
+  @apply relative text-xs;
+
+  &[open] {
+    .summary {
+      &:before {
+        @apply bg-transparent block cursor-default fixed inset-0 z-10;
+        content: ' ';
+      }
+    }
+  }
+
+  .summary {
+    @apply bg-white border border-gray-400 cursor-pointer list-none px-2 py-1 rounded w-32;
+
+    @media (min-width: 640px) {
+      @apply w-auto;
+    }
+
+    &::-webkit-details-marker {
+      @apply hidden;
+    }
+
+    .svg {
+      @apply absolute h-5 inset-y-0 mr-2 my-1 pointer-events-none right-0 w-2;
+    }
+  }
+
+  .div {
+    @apply bg-white overflow-y-auto rounded shadow-md w-64 z-10;
+    box-sizing: border-box;
+    max-height: 16rem;
+
+    @media (min-width: 640px) {
+      @apply w-auto;
+    }
+  }
+}
