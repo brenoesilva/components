@@ -3,14 +3,30 @@
 
   > .thead {
     > .tr {
-      @apply bg-gray-200 hidden;
+      @apply bg-gray-200 block;
 
       @media (min-width: 640px) {
         @apply table-row;
       }
 
+      @media (max-width: 639px) {
+        &:first-child {
+          @apply hidden;
+        }
+      }
+
       > .th {
-        @apply border border-gray-400;
+        @apply block border border-gray-400 text-right;
+
+        @media (min-width: 640px) {
+          @apply table-cell text-left;
+        }
+
+        @media (max-width: 639px) {
+          > * {
+            @apply inline-block text-left;
+          }
+        }
       }
     }
   }

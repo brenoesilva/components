@@ -20,8 +20,10 @@ export default class TableComponent extends Component {
     }
 
     protected init(self, attrs) {
+        attrs.filters = {};
+
         self.add([
-            new Component(`thead.${TableStyle[`thead`]}`).add(
+            new Component(`thead.${TableStyle[`thead`]}`).add([
                 new Component(`tr.${TableStyle[`tr`]}`).add(function () {
                     var headers = m.stream([]);
                     var sort = m.stream({});
@@ -40,7 +42,32 @@ export default class TableComponent extends Component {
 
                     return headers;
                 }),
-            ),
+                attrs.filterable ? new Component(`tr.${TableStyle[`tr`]}[style=text-align:left]`).add(function () {
+                    var filters = m.stream([]);
+
+                    async.mapSeries(attrs.cols || [], function (col, callback) {
+                        attrs.filters[col.name] = m.stream(col.selectable === `multiple` ? [] : ``);
+
+                        if (typeof col.filter === `function`) {
+                            Component.strategize(`${__webpack_public_path__}select.js`, {
+                                selected: attrs.filters[col.name],
+                                selectable: col.selectable,
+                                placement: `bottom-start`,
+                                content: col.filter,
+                                filterable: true,
+                                data: attrs.data,
+                            }).then(function (component) {
+                                callback(null, new Component(`th.${TableStyle[`th`]}`).add(component)
+                                    .set(`data-label`, _.startCase(_.lowerCase(col.name))));
+                            });
+                        } else {
+                            callback(null, new Component(`th`));
+                        }
+                    }).then(filters);
+
+                    return filters;
+                }) : ``,
+            ]),
             new Component(`tbody.${TableStyle[`tbody`]}`).add(function () {
                 var selected = attrs.selected || m.stream(attrs.selectable === `multiple` ? [] : ``);
                 var children = {};
@@ -75,7 +102,16 @@ export default class TableComponent extends Component {
                 })(m.stream([]));
 
                 return function () {
-                    return _.map(attrs.data(), function (item) {
+                    return _.map(_.filter(attrs.data(), function (row) {
+                        var filters = _.reduce(attrs.filters, function (count, filter) {
+                            return count + (_.size(filter()) ? 1 : 0);
+                        }, 0);
+
+                        return _.size(_.filter(attrs.cols || [], function (col) {
+                            return attrs.filters[col.name] && attrs.filters[col.name]() ?
+                                _[col.compare](attrs.filters[col.name](), row[col.name]) : false;
+                        })) === filters || filters === 0;
+                    }), function (item) {
                         return children[JSON.stringify(item)];
                     });
                 };
